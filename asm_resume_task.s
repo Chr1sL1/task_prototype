@@ -4,20 +4,36 @@
 asm_resume_task:
 .LFB0:
 	.cfi_startproc
+	pushq	%rbp
 	pushq	%rbx
 	movq	%rdi, %rbx
 
 	addq	$72, %rdi
-	call	asm_load_regs
-	movq	56(%rbx), %r9
-	movq	%rbx, %rdi
-	popq	%rbx
-	orq		$2, 48(%rdi)
-	movq	48(%rdi), %rcx
-	leaq	8(%rax), %rsp
-	jmp		*%r9		# jump to asm_yield_task: nop
+
+	movq	(%rdi), %rax
+	movq	16(%rdi), %rcx
+	movq	24(%rdi), %rdx
+	movq	32(%rdi), %rsi
+	movq	40(%rdi), %rdi
+	movq	48(%rdi), %rdx		# temp save %rsp in rdx
+	movq	56(%rdi), %rbp
+
+	movq	72(%rdi), %r8
+	movq	80(%rdi), %r9
+	movq	88(%rdi), %r10
+	movq	96(%rdi), %r11
+
+	movq	32(%rbx), %r9
+
+	orq		$2, 48(%rbx)
+	movq	48(%rbx), %rcx
 
 	popq	%rbx
+	popq	%rbp
+
+	movq	%rdx, %rsp
+	jmp		*%r9		# jump to asm_yield_task: nop
+
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc

@@ -11,6 +11,7 @@ asm_yield_task:
 
 #create resume pos:
 	movq	%rdi, %rbx
+	movq	%rdi, %rax
 	movq	48(%rbx), %rcx
 
 	leaq	0x0(%rip), %r8
@@ -37,7 +38,6 @@ asm_yield_task:
 	movq	%r10, 88(%rdi)
 	movq	%r11, 96(%rdi)
 
-#	movq	%rbx, 8(%rdi)
 #	movq	%r12, 104(%rdi)
 #	movq	%r13, 112(%rdi)
 #	movq	%r14, 120(%rdi)
@@ -46,14 +46,19 @@ asm_yield_task:
 	leaq	0x0(%rip), %r8
 	nop
 
-	orq		$1, 48(%rbx)		# jump to run_task
-	movq	32(%rbx), %r9
-	movq	%r8, 32(%rbx)
+	movq	48(%rax), %rcx
+	andq	$2, %rcx
+	testq	%rcx, %rcx
+	jne		.ASM_YIELD_TASK_RESUME_POS
+
+	orq		$1, 48(%rax)		# jump to run_task
+	movq	32(%rax), %r9
+	movq	%r8, 32(%rax)
 
 	popq	%rbx
 	popq	%rbp
 
-	movq	40(%rbx), %rsp
+	movq	40(%rax), %rsp
 	jmp		*%r9
 
 .ASM_YIELD_TASK_RESUME_POS:

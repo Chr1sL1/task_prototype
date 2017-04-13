@@ -102,11 +102,11 @@ int main ( int argc, char *argv[] )
 
 	run_task(tsk);
 
-	for(int i = 0; i < 10; i++)
+	for(int i = 0; i < 5; i++)
 	{
 		printf("%d\n", i);
-//		if(i == 5)
-//			resume_task(tsk);
+		if(i == 2)
+			resume_task(tsk);
 		sleep(1);
 	}
 
