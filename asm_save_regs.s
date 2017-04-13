@@ -6,7 +6,7 @@ asm_save_regs:
 	.cfi_startproc
 #put codes here:
 	movq	%rax, (%rdi)
-	movq	%rbx, 8(%rdi)
+#	movq	%rbx, 8(%rdi)
 	movq	%rcx, 16(%rdi)
 	movq	%rdx, 24(%rdi)
 	movq	%rsi, 32(%rdi)
@@ -18,10 +18,10 @@ asm_save_regs:
 	movq	%r9, 80(%rdi)
 	movq	%r10, 88(%rdi)
 	movq	%r11, 96(%rdi)
-	movq	%r12, 104(%rdi)
-	movq	%r13, 112(%rdi)
-	movq	%r14, 120(%rdi)
-	movq	%r15, 128(%rdi)
+#	movq	%r12, 104(%rdi)
+#	movq	%r13, 112(%rdi)
+#	movq	%r14, 120(%rdi)
+#	movq	%r15, 128(%rdi)
 
 	ret
 	.cfi_endproc

@@ -49,8 +49,10 @@ struct u_task
 	task_function _func;
 	long _task_state;
 	void* _next_instruction;
-	void* _ret_addr;
-	long _state_flag;
+	void* _next_rsp;
+	long _jmp_flag;
+	void* _resume_pos;
+	void* _resume_running_pos;
 
 	struct reg_values _saved_regs;
 };
@@ -103,6 +105,8 @@ int main ( int argc, char *argv[] )
 	for(int i = 0; i < 10; i++)
 	{
 		printf("%d\n", i);
+//		if(i == 5)
+//			resume_task(tsk);
 		sleep(1);
 	}
 

@@ -1,18 +1,23 @@
-	.file	"asm_resume_task.c"
 	.text
 	.globl	asm_resume_task
 	.type	asm_resume_task, @function
 asm_resume_task:
 .LFB0:
 	.cfi_startproc
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	movq	%rdi, -8(%rbp)
-	nop
-	popq	%rbp
+	pushq	%rbx
+	movq	%rdi, %rbx
+
+	addq	$72, %rdi
+	call	asm_load_regs
+	movq	56(%rbx), %r9
+	movq	%rbx, %rdi
+	popq	%rbx
+	orq		$2, 48(%rdi)
+	movq	48(%rdi), %rcx
+	leaq	8(%rax), %rsp
+	jmp		*%r9		# jump to asm_yield_task: nop
+
+	popq	%rbx
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
