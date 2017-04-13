@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.5)
+project(utsk)
+enable_language(C ASM)
+set(src_list asm_save_regs.s asm_load_regs.s asm_run_task.s asm_yield_task.s asm_resume_task.s)
+aux_source_directory(. src_list)
+add_compile_options(-g)
+add_executable(utsk ${src_list})
+target_link_libraries(utsk rt)
