@@ -38,6 +38,7 @@ enum U_TASK_STATE
 	utsReady,
 	utsRunning,
 	utsWaiting,
+	utsFinish,
 
 	utsTotal,
 };
@@ -48,7 +49,7 @@ struct u_task
 	long _stack_size;
 	task_function _func;
 	long _task_state;
-	void* _next_instruction;
+	void* _yield_pos;
 	void* _next_rsp;
 	long _jmp_flag;
 	void* _resume_pos;
@@ -69,26 +70,37 @@ void asm_load_regs(struct reg_values* p);
 void init_task(struct u_task* tsk);
 void run_task(struct u_task* tsk)
 {
-	asm_run_task(tsk);
+	if(tsk->_task_state == utsRunning)
+		return;
+
 	tsk->_task_state = utsRunning;
+	asm_run_task(tsk);
+
 }
 void yield_task(struct u_task* tsk)
 {
-	asm_yield_task(tsk);
 	tsk->_task_state = utsWaiting;
+	asm_yield_task(tsk);
 }
 
 void resume_task(struct u_task* tsk)
 {
+	if(tsk->_task_state != utsWaiting)
+		return;
+
 	asm_resume_task(tsk);
 }
 
 void test_task_func(void* param)
 {
 	struct u_task* tsk = (struct u_task*)param;
-	printf("hello world.\n");
-	yield_task(tsk);
-	printf("resumed.\n");
+	for(int i = 100; i < 110; i++)
+	{
+		printf("%d\n", i);
+		if(i % 3 == 0)
+			yield_task(tsk);
+//		sleep(1);
+	}
 }
 
 int main ( int argc, char *argv[] )
@@ -102,12 +114,12 @@ int main ( int argc, char *argv[] )
 
 	run_task(tsk);
 
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < 10; i++)
 	{
 		printf("%d\n", i);
-		if(i == 2)
+		if(i % 2 == 0)
 			resume_task(tsk);
-		sleep(1);
+///		sleep(1);
 	}
 
 	printf("end of the test.\n");

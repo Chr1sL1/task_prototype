@@ -9,29 +9,9 @@ asm_run_task:
 	movq	%rdi, %rbx
 	movq	%rsp, %r9
 
-#fetch and save %rip
-	leaq	0x0(%rip), %r8
-	nop
-
-	movq	48(%rbx), %rcx
-	movq	%rcx, %rsi
-
-	andq	$4, %rcx
-	testq	%rcx, %rcx
-	jne		.ASM_RUN_TASK_YIELD_OVER
-#
-
-# check state_flag to jmp out
-	andq	$1, %rsi
-	testq	%rsi, %rsi
-	jne		.ASM_RUN_TASK_END
-	movq	%r8, 32(%rbx)
-#
-
 	movq	(%rbx), %rdx
 	movq	8(%rbx), %rsi			# %rsi: stack size
 	leaq	(%rdx, %rsi, 1), %rsp	# move rsp to the stack top
-
 
 #run under usr stack:
 	pushq	%r9			# push original rsp in usr stack
@@ -47,18 +27,18 @@ asm_run_task:
 	testq	%rcx, %rcx
 	jne		.ASM_RUN_TASK_YIELD_OVER
 
-	movq	%r8, 32(%rbx)
+	movq	%r8, 56(%rbx)
 	movq	%rbx, %rdi
 	movq	%rsp, 40(%rbx)
 	call	*16(%rbx)				# call task function
 .ASM_RUN_TASK_YIELD_OVER:
+	andq	$-2, 48(%rbx)
 	popq	%rbx
 	popq	%rbp
 	popfq
-	popq	%rsp			# restore original rsp
+	popq	%rsp					# restore original rsp
 #
 
-.ASM_RUN_TASK_END:
 	popq	%rbx
 	popq	%rbp
 	.cfi_def_cfa 7, 8
