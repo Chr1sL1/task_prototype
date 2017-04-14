@@ -4,43 +4,44 @@
 asm_run_task:
 .LFB0:
 	.cfi_startproc
-	pushq	%rbp
-	pushq	%rbx
-	movq	%rdi, %rbx
+
+	subq	$8, %rsp
+	movq	%rdi, (%rsp)
+
 	movq	%rsp, %r9
 
-	movq	(%rbx), %rdx
-	movq	8(%rbx), %rsi			# %rsi: stack size
+	movq	(%rdi), %rdx
+	movq	8(%rdi), %rsi			# %rsi: stack size
 	leaq	(%rdx, %rsi, 1), %rsp	# move rsp to the stack top
 
 #run under usr stack:
 	pushq	%r9			# push original rsp in usr stack
-	pushfq
-	pushq	%rbp
-	pushq	%rbx
+	subq	$8, %rsp
+	movq	%rdi, (%rsp)
 
 	leaq	0x0(%rip), %r8
-	nop
+	nop					###1
 
-	movq	48(%rbx), %rcx
+	movq	(%rsp), %rdi
+
+	movq	48(%rdi), %rcx
 	andq	$1, %rcx
 	testq	%rcx, %rcx
 	jne		.ASM_RUN_TASK_YIELD_OVER
 
-	movq	%r8, 56(%rbx)
-	movq	%rbx, %rdi
-	movq	%rsp, 40(%rbx)
-	call	*16(%rbx)				# call task function
+	movq	%r8, 56(%rdi)
+	movq	%rsp, 40(%rdi)
+	call	*16(%rdi)				# call task function
 .ASM_RUN_TASK_YIELD_OVER:
-	andq	$-2, 48(%rbx)
-	popq	%rbx
-	popq	%rbp
-	popfq
+
+	movq	(%rsp), %rdi
+	andq	$-2, 48(%rdi)
+
+	addq	$8, %rsp
 	popq	%rsp					# restore original rsp
 #
 
-	popq	%rbx
-	popq	%rbp
+	addq	$8, %rsp
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc

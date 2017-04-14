@@ -70,36 +70,28 @@ void asm_load_regs(struct reg_values* p);
 void init_task(struct u_task* tsk);
 void run_task(struct u_task* tsk)
 {
-	if(tsk->_task_state == utsRunning)
-		return;
-
-	tsk->_task_state = utsRunning;
 	asm_run_task(tsk);
 
 }
 void yield_task(struct u_task* tsk)
 {
-	tsk->_task_state = utsWaiting;
 	asm_yield_task(tsk);
 }
 
 void resume_task(struct u_task* tsk)
 {
-	if(tsk->_task_state != utsWaiting)
-		return;
-
 	asm_resume_task(tsk);
 }
 
 void test_task_func(void* param)
 {
 	struct u_task* tsk = (struct u_task*)param;
-	for(int i = 100; i < 110; i++)
+	for(int i = 1000; i < 1100; i++)
 	{
 		printf("%d\n", i);
 		if(i % 3 == 0)
 			yield_task(tsk);
-//		sleep(1);
+		sleep(1);
 	}
 }
 
@@ -112,14 +104,14 @@ int main ( int argc, char *argv[] )
 	tsk->_stack_size = U_STACK_SIZE;
 	tsk->_func = test_task_func;
 
-	run_task(tsk);
+	asm_run_task(tsk);
 
-	for(int i = 0; i < 10; i++)
+	for(int i = 0; i < 100; i++)
 	{
 		printf("%d\n", i);
 		if(i % 2 == 0)
 			resume_task(tsk);
-///		sleep(1);
+		sleep(1);
 	}
 
 	printf("end of the test.\n");

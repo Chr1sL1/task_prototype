@@ -4,7 +4,6 @@
 asm_resume_task:
 .LFB0:
 	.cfi_startproc
-	pushq	%rbp
 	pushq	%rbx
 	movq	%rdi, %rbx
 
@@ -29,7 +28,6 @@ asm_resume_task:
 	movq	48(%rbx), %rcx
 
 	popq	%rbx
-	popq	%rbp
 
 	movq	%rdx, %rsp
 	jmp		*%r9		# jump to asm_yield_task: nop
