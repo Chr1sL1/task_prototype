@@ -4,9 +4,12 @@
 asm_run_task:
 .LFB0:
 	.cfi_startproc
+	pushq	%rbp
+	movq	%rsp, %rbp
 
-	subq	$8, %rsp
-	movq	%rdi, (%rsp)
+	pushq	%rdi
+#	subq	$8, %rsp
+#	movq	%rdi, (%rsp)
 
 	movq	%rsp, %r9
 
@@ -15,12 +18,17 @@ asm_run_task:
 	leaq	(%rdx, %rsi, 1), %rsp	# move rsp to the stack top
 
 #run under usr stack:
-	pushq	%r9			# push original rsp in usr stack
+	pushq	%rbp
+	movq	%rsp, %rbp
+	movq	%rbp, 64(%rdi)		# save usr stack %rbp
+	pushq	%r9					# push original rsp in usr stack
 	subq	$8, %rsp
 	movq	%rdi, (%rsp)
 
+	movq	32(%rdi), %r9
+
 	leaq	0x0(%rip), %r8
-	nop					###1
+	nop							###1
 
 	movq	(%rsp), %rdi
 
@@ -32,16 +40,22 @@ asm_run_task:
 	movq	%r8, 56(%rdi)
 	movq	%rsp, 40(%rdi)
 	call	*16(%rdi)				# call task function
-.ASM_RUN_TASK_YIELD_OVER:
 
 	movq	(%rsp), %rdi
+	orq		$4, 48(%rdi)
+
+.ASM_RUN_TASK_YIELD_OVER:
+
 	andq	$-2, 48(%rdi)
 
 	addq	$8, %rsp
-	popq	%rsp					# restore original rsp
+	popq	%r9					# restore original rsp
+	popq	%rbp
 #
+	movq	%r9, %rsp
 
-	addq	$8, %rsp
+	popq	%rdi
+	popq	%rbp
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc

@@ -4,8 +4,15 @@
 asm_resume_task:
 .LFB0:
 	.cfi_startproc
+	pushq	%rbp
+	movq	%rsp, %rbp
 	pushq	%rbx
 	movq	%rdi, %rbx
+
+	movq	48(%rdi), %rcx
+	andq	$4, %rcx
+	testq	%rcx, %rcx
+	jne		.ASM_RESUME_TASK_OVER
 
 	addq	$72, %rdi
 
@@ -13,7 +20,7 @@ asm_resume_task:
 	movq	16(%rdi), %rcx
 	movq	24(%rdi), %rdx
 	movq	32(%rdi), %rsi
-	movq	40(%rdi), %rdi
+#	movq	40(%rdi), %rdi
 	movq	48(%rdi), %rdx		# temp save %rsp in rdx
 	movq	56(%rdi), %rbp
 
@@ -28,9 +35,15 @@ asm_resume_task:
 	movq	48(%rbx), %rcx
 
 	popq	%rbx
+	popq	%rbp
 
+	movq	56(%rdi), %rbp
 	movq	%rdx, %rsp
 	jmp		*%r9		# jump to asm_yield_task: nop
+
+.ASM_RESUME_TASK_OVER:
+	popq	%rbx
+	popq	%rbp
 
 	.cfi_def_cfa 7, 8
 	ret

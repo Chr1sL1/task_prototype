@@ -71,8 +71,8 @@ void init_task(struct u_task* tsk);
 void run_task(struct u_task* tsk)
 {
 	asm_run_task(tsk);
-
 }
+
 void yield_task(struct u_task* tsk)
 {
 	asm_yield_task(tsk);
@@ -86,13 +86,24 @@ void resume_task(struct u_task* tsk)
 void test_task_func(void* param)
 {
 	struct u_task* tsk = (struct u_task*)param;
-	for(int i = 1000; i < 1100; i++)
+
+	int arr[100];
+
+	for(int i = 0; i < 100; i++)
 	{
-		printf("%d\n", i);
+		arr[i] = i + 1000;
+	}
+
+	yield_task(tsk);
+
+	for(int i = 0; i < 7; i++)
+	{
+		printf("%d\n", arr[i]);
 		if(i % 3 == 0)
 			yield_task(tsk);
 		sleep(1);
 	}
+	printf("task func finished.\n");
 }
 
 int main ( int argc, char *argv[] )
@@ -104,9 +115,9 @@ int main ( int argc, char *argv[] )
 	tsk->_stack_size = U_STACK_SIZE;
 	tsk->_func = test_task_func;
 
-	asm_run_task(tsk);
+	run_task(tsk);
 
-	for(int i = 0; i < 100; i++)
+	for(int i = 0; i < 15; i++)
 	{
 		printf("%d\n", i);
 		if(i % 2 == 0)

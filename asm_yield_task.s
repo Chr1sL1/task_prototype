@@ -18,9 +18,9 @@ asm_yield_task:
 	movq	%rcx, 16(%rdi)
 	movq	%rdx, 24(%rdi)
 	movq	%rsi, 32(%rdi)
-	movq	%rdi, 40(%rdi)
+#	movq	%rdi, 40(%rdi)
 	movq	%rsp, 48(%rdi)
-	movq	%rbp, 56(%rdi)
+	movq	%rbp, 56(%rdi)	# rbp of task function
 
 	movq	%r8, 72(%rdi)
 	movq	%r9, 80(%rdi)
@@ -28,7 +28,7 @@ asm_yield_task:
 	movq	%r11, 96(%rdi)
 
 	leaq	0x0(%rip), %r8
-	nop
+	nop						###2
 
 	movq	48(%rax), %rcx
 	andq	$2, %rcx
@@ -40,11 +40,13 @@ asm_yield_task:
 	movq	%r8, 32(%rax)
 
 
+	movq	64(%rax), %rbp
 	movq	40(%rax), %rsp
 	jmp		*%r9				# to ###1
 
 .ASM_YIELD_TASK_RESUME_POS:
 	andq	$-3, 48(%rax)
+	movq	56(%rdi), %rbp
 
 	ret
 	.cfi_endproc
