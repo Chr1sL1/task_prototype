@@ -6,6 +6,7 @@ asm_yield_task:
 	.cfi_startproc
 # must be called from usr stack
 # put code here:
+	pushq	%rbx
 	movq	%rdi, %rax
 	movq	48(%rax), %rcx
 
@@ -40,6 +41,7 @@ asm_yield_task:
 	movq	%r8, 32(%rax)
 
 
+	popq	%rbx
 	movq	64(%rax), %rbp
 	movq	40(%rax), %rsp
 	jmp		*%r9				# to ###1
@@ -48,6 +50,7 @@ asm_yield_task:
 	andq	$-3, 48(%rax)
 	movq	56(%rdi), %rbp
 
+	popq	%rbx
 	ret
 	.cfi_endproc
 .LFE0:

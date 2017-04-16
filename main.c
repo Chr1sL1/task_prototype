@@ -68,6 +68,7 @@ void asm_load_regs(struct reg_values* p);
 //
 
 void init_task(struct u_task* tsk);
+
 void run_task(struct u_task* tsk)
 {
 	asm_run_task(tsk);
@@ -85,22 +86,16 @@ void resume_task(struct u_task* tsk)
 
 void test_task_func(void* param)
 {
+	int i = 0;
 	struct u_task* tsk = (struct u_task*)param;
 
-	int arr[100];
-
-	for(int i = 0; i < 100; i++)
+	while(i < 7)
 	{
-		arr[i] = i + 1000;
-	}
-
-	yield_task(tsk);
-
-	for(int i = 0; i < 7; i++)
-	{
-		printf("%d\n", arr[i]);
+		printf("%d\n", i + 1000);
 		if(i % 3 == 0)
 			yield_task(tsk);
+
+		i++;
 		sleep(1);
 	}
 	printf("task func finished.\n");
@@ -108,6 +103,7 @@ void test_task_func(void* param)
 
 int main ( int argc, char *argv[] )
 {
+	int i = 0;
 	struct u_task* tsk = (struct u_task*)malloc(sizeof(struct u_task));
 	memset(tsk, 0, sizeof(struct u_task));
 
@@ -117,11 +113,13 @@ int main ( int argc, char *argv[] )
 
 	run_task(tsk);
 
-	for(int i = 0; i < 15; i++)
+	while(i < 15)
 	{
 		printf("%d\n", i);
 		if(i % 2 == 0)
 			resume_task(tsk);
+
+		i++;
 		sleep(1);
 	}
 

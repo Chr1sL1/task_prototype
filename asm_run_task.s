@@ -6,6 +6,7 @@ asm_run_task:
 	.cfi_startproc
 	pushq	%rbp
 	movq	%rsp, %rbp
+	pushq	%rbx
 
 	pushq	%rdi
 #	subq	$8, %rsp
@@ -20,6 +21,7 @@ asm_run_task:
 #run under usr stack:
 	pushq	%rbp
 	movq	%rsp, %rbp
+	pushq	%rbx
 	movq	%rbp, 64(%rdi)		# save usr stack %rbp
 	pushq	%r9					# push original rsp in usr stack
 	subq	$8, %rsp
@@ -50,11 +52,13 @@ asm_run_task:
 
 	addq	$8, %rsp
 	popq	%r9					# restore original rsp
+	popq	%rbx
 	popq	%rbp
 #
 	movq	%r9, %rsp
 
 	popq	%rdi
+	popq	%rbx
 	popq	%rbp
 	.cfi_def_cfa 7, 8
 	ret
